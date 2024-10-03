@@ -94,6 +94,7 @@ ORDER BY first_appearance;
 Endurstilla output mode
 .output stdout
 
+
 ## 2. Saga ísfólksins
 
 Þetta verkefni felur í sér að lesa inn SQLite gagnagrunninn isfolkid.db sem inniheldur ýmis gögn um bókabálkinn Söga Ísfólksins eftir norska rithöfundinn Margit Sandemo, sem tröllreið íslenskt samfélag á 9. áratug 20. aldar.
@@ -102,48 +103,48 @@ Til að átta ykkur á grunninum, útbúið skipanaskrá sem sýnir hvernig gagn
 
 Skilið skipanaskrá isfolkid.sql sem svarar eftirfarandi spurningum:
 
-### Svar: 
+### Svar:
 
-#### Hversu margar aðalpersónur eru í bókabálkinum?
+#### Hversu margar aðalpersónur eru í bókabálkinum?**
 
 SELECT 'Aðalpersónur: ' || COUNT(*) FROM books WHERE characters <> '';
 
-*SELECT 'Aðalpersónur: ' || COUNT():*  Er bara að sameina textann „Aðalpersónur:“ ( þannig það prentist út) við niðurstöðuna frá count() sem telur fjölda raða
+**SELECT 'Aðalpersónur: ' || COUNT():**  Er bara að sameina textann „Aðalpersónur:“ ( þannig það prentist út) við niðurstöðuna frá count() sem telur fjölda raða
 
-*FROM books:* Sækja gögnin úr töflunni books
+**FROM books:** Sækja gögnin úr töflunni books
 
-*WHERE characters <>:* Þetta segir að telja bara þær bækur sem hafa eitthvað gildi í dálkinum characters.
+**WHERE characters <>:** Þetta segir að telja bara þær bækur sem hafa eitthvað gildi í dálkinum characters.
 
 #### Hversu margar persónur eru í hverri bók?
-SELECT 'Persónur í hverri bók: ' || 
-  id, 
-  is_title, 
+SELECT 'Persónur í hverri bók: ' ||
+  id,
+  is_title,
   LENGTH(characters) - LENGTH(REPLACE(characters, ',', '')) + 1
 FROM books;
 
-*SELECT 'Persónur í hverri bók: ' || :* prenta út textan “persónur í hverri bók” og sameinar við...
+**SELECT 'Persónur í hverri bók: ' || :** prenta út textan “persónur í hverri bók” og sameinar við...
 
-*Id:* númer bókarinnar
+**Id:** númer bókarinnar
 
-*is_title:* heiti bókarinnar
+**is_title:** heiti bókarinnar
 
-*LENGTH(characters):* Þetta finnur heildarlengd strengsins í dálkinum characters, sem inniheldur nöfnin á persónunum í hverri bók, aðskilin með kommum.
+**LENGTH(characters):** Þetta finnur heildarlengd strengsins í dálkinum characters, sem inniheldur nöfnin á persónunum í hverri bók, aðskilin með kommum.
 
-*LENGHT(REPLACE(characters, ',', '')):* Þetta tekur strenginn characters og fjarlægir allar kommur í honum.  Og finnur svo lengdina (án komma).
+**LENGHT(REPLACE(characters, ',', '')):** Þetta tekur strenginn characters og fjarlægir allar kommur í honum.  Og finnur svo lengdina (án komma).
 
-Svo er þetta mínusað: *LENGTH(characters) - LENGTH(REPLACE(characters, ',', '')) + 1*
+Svo er þetta mínusað: **LENGTH(characters) - LENGTH(REPLACE(characters, ',', '')) + 1**
 
-Þá eru fjöldi komma í strengnum fundnar og svo +1 því ef það eru t.d þrjár persónur í charachters þá eru tvær kommur. 
+Þá eru fjöldi komma í strengnum fundnar og svo +1 því ef það eru t.d þrjár persónur í charachters þá eru tvær kommur.
 
 
 #### Hversu oft kemur Þengill fyrir í bókunum?
 SELECT 'Þengill: ' || COUNT(*) FROM books WHERE characters LIKE '%Þengill%';
 
-*COUNT()** telur það sem uppyllir WHERE
+**COUNT(*)** telur það sem uppyllir WHERE
 
-*WHERE characters LIKE '%Þengill%':* Þetta skilyrði leitar að þeim bókum þar sem dálkurinn characters inniheldur strenginn Þengill.
+**WHERE characters LIKE '%Þengill%':** Þetta skilyrði leitar að þeim bókum þar sem dálkurinn characters inniheldur strenginn Þengill.
 
-*%* táknar ótilgreindan fjölda stafa fyrir framan eða á eftir orðinu Þengill sem sagt að það leitar að Þengill hvar sem er innan strengsins í dálkinum characters.
+**%** táknar ótilgreindan fjölda stafa fyrir framan eða á eftir orðinu Þengill sem sagt að það leitar að Þengill hvar sem er innan strengsins í dálkinum characters.
 
 #### Hvað eru margir af Paladín ættinni?
 
@@ -151,31 +152,32 @@ SELECT 'Paladín: ' || COUNT(*) FROM family WHERE name LIKE '%Paladín%';
 
 Svipað og fyrri spurning um Þengil
 
-#### Hversu algengur er illi arfurinn af þeim sem eru útvalin? 
+#### Hversu algengur er illi arfurinn af þeim sem eru útvalin?
 
 SELECT 'Illi arfurinn: ' || COUNT(*) FROM family WHERE chosen_one LIKE 'evil';
 
-Aftur svipað. Skipti ekki máli með % því það er bara eitt orð í dálknum. 
+Aftur svipað. Skipti ekki máli með % því það er bara eitt orð í dálknum.
 
 
-#### Hver er fæðingartíðni kvenna í bókabálkinum? 
+#### Hver er fæðingartíðni kvenna í bókabálkinum?
 
 SELECT 'Fæðingartíðni: ' || AVG(birth) FROM family WHERE gender LIKE 'F';
 
-*AVG(birth):* Finnur meðaltal á gildunum í dálkinum birth 
+**AVG(birth):** Finnur meðaltal á gildunum í dálkinum birth
 
 
 #### Hvað er Ísfólkið margar blaðsíður samanlagt?
 
 SELECT 'Blaðsíður: ' || SUM(pages) FROM books;
 
-*SUM(pages):* Plúsar saman allar blaðsíðurnar 
+**SUM(pages):** Plúsar saman allar blaðsíðurnar
 
 #### Hvað er meðallengd hvers þáttar af Ískisum?
 
 SELECT 'Meðallengd: ' || AVG(length) FROM storytel_iskisur;
 
 Hægt að sjá hvað þetta gerir með fyrri leiðbeiningum.
+
 ## 3. Gagnagrunnur fyrir tímataka.net
 
 Forritið, timatakasql2.py er hannað til að sækja úrslit af timataka.net fyrir hlaupin í ágústmánuði 2019. Gögnin eru unnin úr HTML skrám sem sóttar eru af netinu og vistuð í cvs skrá fyrir frekari greiningu.
