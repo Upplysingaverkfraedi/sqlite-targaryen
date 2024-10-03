@@ -1,92 +1,98 @@
 
 # Gagnavinnsla með SQLite3
 
-Í þessu verkefni bjuggum við til töflu til að geyma upplýsingar um tíðni nafna á Íslandi. Til að vinna með gögnin var notast við SQLite gagnagrunninn og CSV skrár.
+## 1. Tíðni nafna á Íslandi
 
-*Búa til töflu til að geyma nafna fjöldann*
-CREATE TABLE IF NOT EXISTS names (
-*hér er lesið inn name frá csv skránum*
-name TEXT NOT NULL, 
-*hér er lesið inn year frá csv skránum*
-year INTEGER NOT NULL, 
-*hér er lesið inn frequency frá csv skránum*
-frequency INTEGER NOT NULL, 
-*hér er lesið inn annað sem gæti verið í csv skránum, ef ekkert kemur þá er sett *NULL í staðinn**
-type TEXT, 
-*Setja megin flokkana okkar sem primary key*
+
+  Í þessu verkefni bjuggum við til forrit sem vinnur með gögn um tíðni nafna á Íslandi. Gögnin eru lesin inn úr tveimur CSV skrám: einni fyrir eiginnöfn (first names) og annari fyrir millinöfn (middle names). Forritið setur gögnin inn í SQLite gagnagrunn, framkvæmir SQL fyrirspurnir til að svara spurningum um tíðni og vinsældir nafna, og vistar úttakið í textaskrá.
+
+Hér má sjá frekari útskýringu á virkni forritsins: 
+
+### Búa til töflu til að geyma nafna fjöldann.
+- CREATE TABLE IF NOT EXISTS names (
+2. hér er lesið inn name frá csv skránum.
+- name TEXT NOT NULL, 
+3. hér er lesið inn year frá csv skránum.
+- year INTEGER NOT NULL, 
+4. hér er lesið inn frequency frá csv skránum.
+- frequency INTEGER NOT NULL, 
+5. hér er lesið inn annað sem gæti verið í csv skránum, ef ekkert kemur þá er sett *NULL í staðinn.
+- type TEXT, 
+6. Setja megin flokkana okkar sem primary key.
 PRIMARY KEY (name, year, type)); 
 
-*Setja gögnin í töflu*
+### Setja gögnin í töflu
 
-*Merkja að verið sé að lesa inn gögn frá csv skrám*
-.mode csv
-*importa gögnin, byrjum á first_names (er með csv skránna undir data hjá mér í VScode)*
-.import 'data\first_names_freq.csv' names
-*Setja öll gögn fyrir "first_name" sem first_names*
-UPDATE names SET type = 'first_name' WHERE type IS NULL;
-*Gera það sama við seinni skránni nema middle_name*
-.import 'data\middle_names_freq.csv' names
-UPDATE names SET type = 'middle_name' WHERE type IS NULL;
+1. Merkja að verið sé að lesa inn gögn frá csv skrám.
+- .mode csv
+2. importa gögnin, byrjum á first_names (er með csv skránna undir data hjá mér í VScode).
+- .import 'data\first_names_freq.csv' names
+3. Setja öll gögn fyrir "first_name" sem first_names.
+- UPDATE names SET type = 'first_name' WHERE type IS NULL;
+4. Gera það sama við seinni skránni nema middle_name.
+- .import 'data\middle_names_freq.csv' names
+- UPDATE names SET type = 'middle_name' WHERE type IS NULL;
 
-*Output file sem texta skrá sem heitir names_output.txt*
+- Output file sem texta skrá sem heitir names_output.txt: 
 .output names_output.txt
 
 
-*Spurning 1*
+### Spurning 1
 
-*Prenta út spurninguna*
-SELECT 'Spurning 1: Hvaða hópmeðlimur á algengasta eiginnafnið??' AS question;
-*Setja niðurstöðurnar sem summa af öllu count eftir nöfnunum og prenta út hvaða nafn hefur flest count s.s. er alngengast*
-SELECT name, SUM(frequency) AS total_frequency
-FROM names
-*Leita af eignarnöfnunum okkar þrem og prenta út svarið með fjöldanum af count fyrir það nafn sem er alngengast*
+1. Prenta út spurninguna
+- SELECT 'Spurning 1: Hvaða hópmeðlimur á algengasta eiginnafnið??' AS question;
+2. Setja niðurstöðurnar sem summu af öllu count eftir nöfnunum og prenta út hvaða nafn hefur flest count s.s. er algengast.
+- SELECT name, SUM(frequency) AS total_frequency FROM names
+3. Leita af eignarnöfnunum okkar þrem og prenta út svarið með fjöldanum af count fyrir það nafn sem er algengast. 
+
+
 WHERE type = 'first_name' AND name IN ('Þráinn', 'Ásdís', 'Gígja')
 GROUP BY name
 ORDER BY total_frequency DESC
 LIMIT 1;
 
-*Spurning 2*
+### Spurning 2
 
-*Prenta út spurninguna*
-SELECT 'Spurning 2: Hvenær voru öll nöfnin vinsælust?' AS question;
-*Þessi kóði les bæði fyrstu og milli nöfnin okkar og skilar þeirri línu (row) sem hefur flest count s.s. hvenær hvert nafn var vinsælast. Niðurstöðurnar prenta öll nöfnin og það ár sem þau voru vinsælust*
-SELECT name, year
-*Hvað skal vera prentað út í lokin*
-FROM ( 
-*Hvar við leitum af svarinu*
-SELECT name, year, frequency, 
+1. Prenta út spurninguna
+- SELECT 'Spurning 2: Hvenær voru öll nöfnin vinsælust?' AS question;
+2. Þessi kóði les bæði fyrstu og milli nöfnin okkar og skilar þeirri línu (row) sem hefur flest count s.s. hvenær hvert nafn var vinsælast. Niðurstöðurnar prenta öll nöfnin og það ár sem þau voru vinsælust.
+- SELECT name, year
+3. Hvað skal vera prentað út í lokin: 
+- FROM ( 
+4. Hvar við leitum af svarinu
+- SELECT name, year, frequency, 
 ROW_NUMBER() OVER (PARTITION BY name ORDER BY frequency DESC) AS row_num
 FROM names
-*Leitum af þessum þrem eignarnöfnum*
-WHERE (type = 'first_name' AND name IN ('Ásdís', 'Gígja', 'Þráinn')) 
+5. Leitum af þessum þrem eignarnöfnum*
+- WHERE (type = 'first_name' AND name IN ('Ásdís', 'Gígja', 'Þráinn')) 
 UNION ALL
 SELECT name, year, frequency,
 ROW_NUMBER() OVER (PARTITION BY name ORDER BY frequency DESC) AS row_num
 FROM names
-*Leitum af þessum milli nöfnum*
-WHERE (type = 'middle_name' AND name IN ('Marín', 'Ágúst')) 
+6. Leitum af þessum milli nöfnum
+- WHERE (type = 'middle_name' AND name IN ('Marín', 'Ágúst')) 
 ) AS subquery
 WHERE row_num = 1;
 
-*Spurning 3*
+### Spurning 3
 
-*Prenta út spurninguna*
-SELECT 'Spurning 3: Hvenær komu þau fyrst fram?' AS question;
-*Þessi kóði finnur minnsta árið sem er við hvert nafn og skilar svo nafninu með því ártali*
-*Velur "name" og min(year) sem minnsta árið og stillir það sem first_appearance*
-SELECT name, MIN(year) AS first_appearance 
+1. Prenta út spurninguna
+- SELECT 'Spurning 3: Hvenær komu þau fyrst fram?' AS question;
+2. Þessi kóði finnur minnsta árið sem er við hvert nafn og skilar svo nafninu með því ártali
+Velur "name" og min(year) sem minnsta árið og stillir það sem first_appearance
+- SELECT name, MIN(year) AS first_appearance 
 FROM names
-*Hér er verið að segja hvar á að leita eftir hvaða nafni s.s. í hvaða skrá*
-*Leitum fyrst af eignarnöfnunum*
-WHERE (type = 'first_name' AND name IN ('Ásdís', 'Gígja', 'Þráinn'))
-*Og svo að miðju nöfnunum*
-OR (type = 'middle_name' AND name IN ('Marín', 'Ágúst'))
+3. Hér er verið að segja hvar á að leita eftir hvaða nafni s.s. í hvaða skrá
+Leitum fyrst af eignarnöfnunum: 
+- WHERE (type = 'first_name' AND name IN ('Ásdís', 'Gígja', 'Þráinn'))
+4. Og svo að miðju nöfnunum: 
+- OR (type = 'middle_name' AND name IN ('Marín', 'Ágúst'))
 GROUP BY name
 ORDER BY first_appearance;
 
-*Endurstilla output mode*
+- 
+Endurstilla output mode
 .output stdout
-
 
 ## 2. Saga ísfólksins
 
